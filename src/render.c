@@ -1,26 +1,30 @@
-#include "grid.h"
+#include "render.h"
 #include "raylib.h"
+//#include "raymath.h" will likely need
+#include "rlgl.h"
 
-void drawMesh(int w, int h, camera3D c){
-
-	grid mainGrid;
-	mainGrid.width = w;
-	mainGrid.height = h;
-	mainGrid.gridArray = (float*)malloc(sizeof(float) * w * h);
-
-	while(!WindowShouldClose()){
-
-	UpdateCamera(&c, CAMERA_CUSTOM); //pass camera referenced, and mode
-	if(IsKeyPressed(KEY_Z)){
-		c.position = Vector3RotateByAxisAngle((Vector3){0.0f, 30.0f*sin(30.0f*DEG2RAD), 0.0f}, c.position, 30.0f * DEG2RAD);
+void drawBody(const Body *b){
+	//DEFAULT CASE IS CUBE
+	switch(b->shape){
+		case SHAPE_CUBE:
+			DrawCube(b->position, b->size, b->size, b->size, b->color);
+			DrawCubeWires(b->position, b->size, b->size, b->size, b->outline_color);
+			break;
+		case SHAPE_SPHERE:
+			DrawSphere(b->position, bodyHalfHeight(b), b->color);
+			DrawSphereWires(b->position, bodyHalfHeight(b), 6, 6, b->outline_color);
+			break;
+		default:
+			DrawCube(b->position, b->size, b->size, b->size, b->color);
+			DrawCubeWires(b->position, b->size, b->size, b->size, b->outline_color);
+			break;
 	}
-	BeginDrawing();
-	ClearBackground(RAYWHITE);
-		BeginMode3D(camera);
-			DrawCube((Vector3){0.0f, 0.0f, 0.0f}, 2.0f, 2.0f, 2.0f, RED); //the startPos then lwh
-			DrawCubeWires((Vector3){0.0f, 0.0f, 0.0f}, 2.0f, 2.0f, 2.0f, MAROON); //same thing but just the outline of mesh
-			DrawGrid(10, 1.0f); //how the grid is subdivided, distance between each subdivision
-		EndMode3D();
-	EndDrawing();
-	}
+}
+
+
+void drawMesh(){
+	rlPushMatrix();
+	rlRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+	DrawGrid(10, 1.0f); //how the grid is subdivided, distance between each subdivision (10x10, 1.0 spacing)
+	rlPopMatrix();
 }
